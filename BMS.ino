@@ -1,8 +1,18 @@
 // SENIOR DESIGN PROJECT: BMS PROTOTYPE
 
 // variables
-const int voltageSensor1 = A0;
-const int voltageSensor2 = A1;
+#define voltageSensor1 A4
+#define voltageSensor2 A5
+
+// 3.99
+// 2.33 
+
+
+
+// 3.98 - 3.98
+// 2.66 - 2.36
+
+
 const int charger = 8;
 
 float vout1 = 0.0;
@@ -18,8 +28,8 @@ float val2 = 0;
 float BV1 = 0;
 float BV2 = 0;
 
-float BV1offset = 0.42;   // offsets for circuit variation, verify with voltmeter on cells
-float BV2offset = 0.05;
+float BV1offset = -0.3;   // offsets for circuit variation, verify with voltmeter on cells
+float BV2offset = 0.0;
 float delayfactor = 0;;
 
 void setup() {
@@ -41,22 +51,33 @@ void read_voltages() {
   vout1 = (val1 * 5.0) / 1024.0;  // convert from digital to analog
   vout2 = (val2 * 5.0) / 1024.0;
 
-  vin1 = vout1*(R1+R2)/R2;
-  vin2 = vout2*(R1+R2)/R2;
+  vin1 = vout1 * (R1 + R2) / R2;
+  vin2 = vout2 * (R1 + R2) / R2;
 
-  // BV1 = vin1 + 3.8;
-  BV1 = 4.02;
-  BV2offset = 1.47;   // change to variance of battery cells
-  BV2 = vin2 - vin1;
-  
-  BV2 = 3.4;
+  if (vin1 > vin2) {
+    BV1 = vin1 - vin2;
+    BV2 = vin2 + BV2offset;
+  } else {
+    BV1 = vin1 + BV1offset;
+    BV2 = vin2 - vin1;
+  }
 }
 
 void print_voltages() {
-  Serial.print("BV1 ");
-  Serial.println(BV1);
-  Serial.print("BV2 ");
-  Serial.println(BV2);
+  Serial.print("BV1: ");
+  Serial.print(BV1);
+  Serial.print("   BV2: ");
+  Serial.print(BV2);
+
+  Serial.print("      vin1: ");
+  Serial.print(vin1);
+  Serial.print("   vin2: ");
+  Serial.print(vin2);
+
+  Serial.print("      val1: ");
+  Serial.print(val1);
+  Serial.print("   val2: ");
+  Serial.println(val2);
 }
 
 void loop() {
